@@ -1,130 +1,106 @@
 # Skill: meta-setup
+**Plugin:** mcf-tech-meta-ads-manager
+**Idioma:** Português
 
 ## Descrição
-Guia o usuário pelo processo completo de configuração da integração com a API do Meta Ads.
-Ao final, verifica se a conexão está funcionando corretamente.
+Configura as credenciais de acesso à API do Meta Ads. Cria o arquivo de configuração no caminho padrão do sistema, compatível com Windows, Mac e Linux. Funciona tanto no Claude Code CLI quanto no Cowork.
 
 ---
 
 ## Instruções para o Claude
 
-Quando o usuário invocar este skill, siga **exatamente** esta sequência de passos.
-Não pule etapas. Aguarde confirmação do usuário antes de avançar.
-Responda sempre em português.
+Siga exatamente esta sequência. Responda sempre em português. Aguarde confirmação do usuário antes de avançar entre os passos.
 
 ---
 
-## Passo 1 — Verificar o arquivo de configuração
+## Passo 1 — Verificar configuração existente
 
-Verifique se o arquivo `~/.claude/settings.json` já possui as variáveis `META_ACCESS_TOKEN` e `META_AD_ACCOUNT_ID`.
+Execute o script abaixo para checar se já existe configuração:
 
-- Se **não existirem**, adicione os placeholders automaticamente:
-
-```json
-"env": {
-  "META_ACCESS_TOKEN": "COLE_SEU_TOKEN_AQUI",
-  "META_AD_ACCOUNT_ID": "COLE_SEU_ID_DE_CONTA_AQUI"
-}
+```bash
+python3 -c "
+import pathlib, json
+p = pathlib.Path.home() / '.mcf-tech' / 'meta-ads-config.json'
+if p.exists():
+    cfg = json.loads(p.read_text())
+    t = cfg.get('META_ACCESS_TOKEN','')
+    a = cfg.get('META_AD_ACCOUNT_ID','')
+    print('ENCONTRADO')
+    print(f'Token: {t[:15]}...' if t else 'Token: NAO DEFINIDO')
+    print(f'Account ID: {a}' if a else 'Account ID: NAO DEFINIDO')
+else:
+    print('NAO ENCONTRADO')
+    print(f'Caminho esperado: {p}')
+"
 ```
 
-- Se **já existirem com valores reais** (não placeholders), vá direto ao Passo 4 para verificar a conexão.
-
-Informe o usuário o que foi feito e explique que ele precisará preencher os dois valores nos próximos passos.
+- Se retornar `ENCONTRADO` com valores preenchidos, vá direto ao Passo 4.
+- Se não existir ou estiver incompleto, continue para o Passo 2.
 
 ---
 
 ## Passo 2 — Obter o Token de Acesso
 
-Explique ao usuário que ele precisa gerar um token de acesso no Meta. Guie-o assim:
+Explique ao usuário:
 
 > **Como gerar seu token:**
->
 > 1. Acesse [developers.facebook.com](https://developers.facebook.com)
-> 2. No menu superior, clique em **Ferramentas** → **Explorador da Graph API**
-> 3. No canto superior direito, selecione o app **"API for Development"**
+> 2. Menu superior → **Ferramentas** → **Explorador da Graph API**
+> 3. Selecione o app no canto superior direito
 > 4. Clique em **Gerar token de acesso**
-> 5. Marque as permissões:
->    - `ads_read`
->    - `ads_management`
->    - `business_management`
-> 6. Faça login e autorize
-> 7. Copie o token gerado (começa com `EAA...`)
+> 5. Marque as permissões: `ads_read`, `ads_management`, `business_management`
+> 6. Copie o token (começa com `EAA...`)
 >
-> ⚠️ **Não compartilhe este token com ninguém. Trate-o como uma senha.**
+> ⚠️ Não compartilhe este token. Trate-o como senha.
 
-Após explicar, peça ao usuário que:
-1. Abra o arquivo `~/.claude/settings.json` em qualquer editor de texto
-2. Substitua `COLE_SEU_TOKEN_AQUI` pelo token copiado
-3. Salve o arquivo
-4. Volte e diga **"feito"** quando terminar
-
-Aguarde a confirmação antes de continuar.
+Peça ao usuário que cole o token aqui na conversa quando estiver pronto.
 
 ---
 
 ## Passo 3 — Obter o ID da Conta de Anúncios
 
-Explique ao usuário que ele precisa do ID da conta de anúncios. Guie-o assim:
+Explique ao usuário:
 
-> **Como encontrar seu ID de conta:**
->
-> **Opção A — Pelo Gerenciador de Anúncios:**
-> 1. Acesse [business.facebook.com](https://business.facebook.com)
-> 2. Abra o **Gerenciador de Anúncios**
-> 3. Olhe a URL do navegador — você verá algo como:
->    `act_123456789`
-> 4. Esse número é o seu ID de conta
->
-> **Opção B — Pelo Business Manager:**
-> 1. Acesse [business.facebook.com](https://business.facebook.com)
-> 2. Clique em **Configurações** (ícone de engrenagem)
-> 3. Vá em **Contas** → **Contas de anúncios**
-> 4. O ID aparece abaixo do nome da conta
+> **Como encontrar seu ID:**
+> 1. Acesse [business.facebook.com](https://business.facebook.com) → Gerenciador de Anúncios
+> 2. Olhe a URL: você verá `act_XXXXXXXXX`
+> 3. Esse número com o prefixo `act_` é o seu ID
 
-Após explicar, peça ao usuário que:
-1. Abra o arquivo `~/.claude/settings.json` novamente
-2. Substitua `COLE_SEU_ID_DE_CONTA_AQUI` pelo ID encontrado, no formato `act_XXXXXXXXX`
-3. Salve o arquivo
-4. Volte e diga **"feito"** quando terminar
-
-Aguarde a confirmação antes de continuar.
+Peça ao usuário que informe o ID da conta.
 
 ---
 
-## Passo 4 — Verificar a conexão
+## Passo 4 — Salvar as credenciais
 
-Execute os seguintes testes em sequência usando bash:
+Com o token e o account ID em mãos, execute (substituindo os valores reais):
 
-**Teste 1 — Identidade:**
 ```bash
-curl -s "https://graph.facebook.com/v19.0/me?fields=id,name&access_token=$META_ACCESS_TOKEN"
+python3 -c "
+import pathlib, json
+config_dir = pathlib.Path.home() / '.mcf-tech'
+config_dir.mkdir(parents=True, exist_ok=True)
+config_path = config_dir / 'meta-ads-config.json'
+config_path.write_text(json.dumps({
+    'META_ACCESS_TOKEN': 'TOKEN_AQUI',
+    'META_AD_ACCOUNT_ID': 'ACCOUNT_ID_AQUI'
+}, indent=2), encoding='utf-8')
+print(f'Credenciais salvas em: {config_path}')
+"
 ```
-Esperado: retornar `id` e `name` do usuário.
 
-**Teste 2 — Acesso à conta de anúncios:**
-```bash
-curl -s "https://graph.facebook.com/v19.0/$META_AD_ACCOUNT_ID/campaigns?fields=id,name,status&limit=3&access_token=$META_ACCESS_TOKEN"
-```
-Esperado: retornar lista de campanhas.
+Substitua `TOKEN_AQUI` e `ACCOUNT_ID_AQUI` pelos valores reais antes de executar.
+
+Informe ao usuário o caminho onde o arquivo foi salvo.
 
 ---
 
-## Passo 5 — Resultado
+## Passo 5 — Verificar a conexão
 
-**Se os dois testes passarem:**
-> ✅ **Configuração concluída com sucesso!**
->
-> Sua conta está conectada e pronta para uso. Você já pode usar os outros recursos deste plugin para analisar campanhas, gerar relatórios e muito mais.
+1. Leia o script com o Read tool: `../scripts/setup_check.py` — anote o caminho absoluto
+2. Execute diretamente: `python3 <caminho_absoluto>`
 
-**Se o Teste 1 falhar (token inválido):**
-> ❌ **Token inválido ou expirado.**
->
-> Volte ao Passo 2 e gere um novo token no Explorador da Graph API. Tokens gerados pelo Explorer duram cerca de 1 hora. Se precisar de um token mais duradouro, peça ajuda ao consultor.
+Se ambos os testes passarem (`Token valido` e `Conta acessivel`), informe que a configuração está completa e o usuário já pode usar todos os skills do plugin.
 
-**Se o Teste 2 falhar (sem acesso à conta):**
-> ❌ **Token válido, mas sem acesso à conta de anúncios.**
->
-> Verifique se:
-> - O ID da conta está no formato correto: `act_XXXXXXXXX`
-> - Você tem acesso a essa conta de anúncios no Meta Business Manager
-> - As permissões `ads_read` e `ads_management` foram marcadas ao gerar o token
+**Se o token falhar:** volte ao Passo 2 e gere um novo token no Explorador da Graph API. Tokens do Explorer duram ~1 hora; para tokens duradouros, o usuário precisa configurar um app no Meta Developers.
+
+**Se a conta falhar:** verifique se o ID está no formato `act_XXXXXXXXX` e se o token tem as permissões `ads_read` e `ads_management`.
