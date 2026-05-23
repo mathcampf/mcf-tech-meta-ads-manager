@@ -1,0 +1,9 @@
+# Temporary Python scripts (never committed — created at runtime)
+/tmp/mcf_*.py
+
+# macOS
+.DS_Store
+
+# Secrets (token lives in ~/.claude/settings.json, never here)
+*.env
+.env*
