@@ -1,0 +1,25 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "mcf-tech-meta-ads-manager",
+  "description": "MCF Tech Meta Ads Manager — plugin para gestão de Meta Ads em português",
+  "owner": {
+    "name": "Matheus Campanha",
+    "email": "matheuscampanhaf@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "mcf-tech-meta-ads-manager",
+      "description": "9 comandos para gestão completa de Meta Ads: visão geral, diagnóstico, relatório semanal, funil de conversão, alertas de frequência, criativos, conjuntos de anúncios e comparação de períodos.",
+      "author": {
+        "name": "Matheus Campanha"
+      },
+      "category": "marketing",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/mathcampf/mcf-tech-meta-ads-manager.git",
+        "sha": "50847a4acad314b68bf283a92643cc8f4e714174"
+      },
+      "homepage": "https://github.com/mathcampf/mcf-tech-meta-ads-manager"
+    }
+  ]
+}

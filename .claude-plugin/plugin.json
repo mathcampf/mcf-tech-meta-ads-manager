@@ -1,0 +1,9 @@
+{
+  "name": "mcf-tech-meta-ads-manager",
+  "description": "Gerenciador de Meta Ads para consultoria MCF Tech — análise de campanhas, funil, criativos, frequência e relatórios em português",
+  "version": "1.0.0",
+  "author": {
+    "name": "Matheus Campanha",
+    "email": "matheuscampanhaf@gmail.com"
+  }
+}
